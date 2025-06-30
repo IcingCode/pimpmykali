@@ -54,6 +54,9 @@ sudo ./pimpmykali.sh
 # Writeups / Honorable Mentions
   - ip3c4c_n00b https://ip3c4c.com/2202_homelab_vmware/
 
+# Revision 2.0.5 - MAPT Course Update
+  - resolved issue with wkhtmltox installation
+
 # Revision 2.0.4 - Signing key fix
   - new function new_kali_signingkey
     - executed before each menu function

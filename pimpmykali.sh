@@ -9,7 +9,7 @@
 # Standard Disclaimer: Author assumes no liability for any damage
 
 # revision var
-    revision="2.0.4"
+    revision="2.0.5"
 
 # prompt colors
     red=$'\e[1;31m'
@@ -1629,7 +1629,16 @@ install_nessus() {
 
 mapt_prereq() {
     echo -e "\n  ${greenplus} Installing Mobile Application Pentester course requirements"
-    is_installed "python${pyver}-venv aapt apktool adb apksigner zipalign wkhtmltopdf default-jdk jadx"
+    wkhtmltox_installed=$(apt search ^wkhtmltox | grep -i installed -c)
+    if [ $wkhtmltox_installed -ge 1 ]
+    then
+      echo -e "\n  ${greenplus} wkhtmltox already installed, skipping" 
+    else 
+      echo -e "\n  ${greenplus} Installing wkhtmltox" 
+      wget -q https://github.com/wkhtmltopdf/packaging/releases/download/0.12.6.1-3/wkhtmltox_0.12.6.1-3.bookworm_amd64.deb -O /tmp/wkhtmltox_0.12.6.1-3.bookworm_amd64.deb
+      dpkg -i /tmp/wkhtmltox_0.12.6.1-3.bookworm_amd64.deb
+    fi 
+    is_installed "python${pyver}-venv aapt apktool adb apksigner zipalign default-jdk jadx"
     is_installed "docker.io"
     fix_dockercompose
     eval systemctl enable docker --now
@@ -1637,7 +1646,7 @@ mapt_prereq() {
     echo "sudo docker run -it --rm -p 8000:8000 opensecurity/mobile-security-framework-mobsf:latest" > /usr/bin/mobsf-docker
     chmod +x /usr/bin/mobsf-docker 
       # git clone https://github.com/MobSF/Mobile-Security-Framework-MobSF /opt/Mobile-Security-Framework-MobSF
-    echo -e "${spaces}${greenplus} Createed MobSF startup script to /usr/bin/mobsf-docker"
+    echo -e "${spaces}${greenplus} Created MobSF startup script to /usr/bin/mobsf-docker"
     }
 
 
@@ -2701,7 +2710,7 @@ pimpmykali_menu() {
       echo -e "  0 - Fix ONLY 1 thru 8             (runs only 1 thru 8) \n"                                      # fix_all
       echo -e "  "$bold"N - NEW VM SETUP"$reset" - Run this option if this is the first time running pimpmykali\n"
       echo -e "  = - Pimpmykali-Mirrors            (find fastest kali mirror. use the equals symbol = )"          # get_mirrorlist; best_ping; small_speedtest; large_speedtest; gen_new_sources; cleanup;;
-      echo -e "  T - Reconfigure Timezone           current timezone  : $(cat /etc/timezone)"                     # reconfig_timekey
+      echo -e "  T - Reconfigure Timezone           current timezone  : $(timedatectl  | grep -i "Time zone" | cut -d ":" -f2 | sed 's/^[[:space:]]*//')"                     # reconfig_timekey
       echo -e "  K - Reconfigure Keyboard           current keyb/lang : $(cat /etc/default/keyboard | grep XKBLAYOUT | cut -d "\"" -f2)" # reconfig_keyboard
       echo -e "\n Key  Stand alone functions:        Description:"                                               # 
       echo -e " ---  --COURSES-------------------- ------------"                                                 # 
@@ -2904,6 +2913,7 @@ check_arg() {
          --fixpip) fix_pip2_pip3;;
            --pipx) install_pipx;;
           --spike) fix_spike;;
+           --mapt) mapt_prereq;;
          --csharp) csharp_course_setup;;
             --pbb) pbb_lab_setup;;
       --pehweblab) fix_libwacom; peh_weblab_setup;;
